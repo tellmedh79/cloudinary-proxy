@@ -1,0 +1,11 @@
+{
+    "version": 2,
+    "routes": [
+      {
+        "src": "/api/upload",
+        "methods": ["POST", "OPTIONS"],
+        "dest": "/api/upload.js"
+      }
+    ]
+  }
+  
