@@ -35,8 +35,14 @@ export default async function handler(req, res) {
       return res.status(400).json({ error: 'Missing file or fileName' });
     }
 
+    // base64 앞부분 제거: data:image/png;base64,... → ...
+    const base64Data = file.replace(/^data:image\/\w+;base64,/, '');
+
+    console.log('🧩 fileName:', fileName);
+    console.log('🧬 base64 (preview):', base64Data.slice(0, 50));
+
     const form = new URLSearchParams();
-    form.append('file', file);
+    form.append('file', `data:image/png;base64,${base64Data}`);
     form.append('upload_preset', 'unsigned_preset');
 
     const cloudName = 'dzcqocpiz';
@@ -49,9 +55,16 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    return res.status(200).json({ secure_url: data.secure_url });
+    if (data.secure_url) {
+      console.log('✅ Upload success:', data.secure_url);
+      return res.status(200).json({ secure_url: data.secure_url });
+    } else {
+      console.error('❌ Cloudinary error response:', data);
+      return res.status(500).json({ error: 'Upload failed', detail: data });
+    }
   } catch (e) {
     console.error('❌ Upload Error:', e);
     return res.status(500).json({ error: 'Upload failed', detail: e.message });
   }
 }
+
